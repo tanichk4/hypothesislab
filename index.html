@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HypothesisLab — Structure your ideas. Test what matters.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Bricolage+Grotesque:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --accent: #c8f135;
+  --text: #f0ede6;
+  --muted: #7a7a72;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Bricolage Grotesque', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── SCREEN ROUTER ── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: block; }
+
+/* ── NAV (landing) ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 20px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(14,14,14,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-family: var(--mono); font-size: 14px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; cursor: pointer; }
+.nav-cta { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--bg); background: var(--accent); border: none; padding: 10px 22px; cursor: pointer; text-transform: uppercase; transition: background 0.2s, transform 0.15s; }
+.nav-cta:hover { background: #d4ff55; transform: translateY(-1px); }
+
+/* ── FUNNEL NAV ── */
+.funnel-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 16px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(14,14,14,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.funnel-logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; cursor: pointer; }
+.back-btn {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
+  color: var(--muted); background: none; border: 1px solid var(--border);
+  padding: 8px 18px; cursor: pointer; text-transform: uppercase;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.back-btn:hover { color: var(--text); border-color: var(--muted); }
+.prog-steps { display: flex; align-items: center; gap: 8px; }
+.prog-step {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.prog-step.active { color: var(--accent); }
+.prog-step.done { color: var(--muted); }
+.prog-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.prog-step.active .prog-dot { background: var(--accent); }
+.prog-step.done .prog-dot { background: var(--muted); }
+.prog-line { width: 20px; height: 1px; background: var(--border); }
+
+/* ── FUNNEL WRAPPER ── */
+.funnel-wrap {
+  max-width: 680px; margin: 0 auto;
+  padding: 100px 24px 60px;
+  min-height: 100vh;
+}
+
+/* ── SCREEN TITLE BLOCK ── */
+.screen-eyebrow {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 16px;
+}
+.screen-title {
+  font-family: var(--serif); font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400; line-height: 1.15; margin-bottom: 12px;
+}
+.screen-sub { font-size: 15px; color: var(--muted); font-weight: 300; margin-bottom: 40px; }
+
+/* ── TEXTAREA ── */
+.idea-area {
+  width: 100%; min-height: 180px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--sans); font-size: 16px;
+  line-height: 1.65; padding: 20px; resize: vertical;
+  outline: none; transition: border-color 0.2s;
+}
+.idea-area:focus { border-color: var(--accent); }
+.idea-area::placeholder { color: #4a4a44; }
+.field-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; margin-bottom: 8px;
+}
+.char-counter { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.char-counter.ready { color: var(--accent); }
+.helper-text { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+
+/* ── BUTTONS ── */
+.btn-accent {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: var(--bg);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 16px 32px;
+  border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn-accent:hover:not(:disabled) { background: #d4ff55; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(200,241,53,0.25); }
+.btn-accent:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--muted);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 15px 28px;
+  border: 1px solid var(--border); cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+.btn-danger {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: #e05a4e;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 10px 20px;
+  border: 1px solid #3d1f1d; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-danger:hover { background: rgba(224,90,78,0.08); border-color: #e05a4e; }
+.btn-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.arrow-icon { display: inline-block; transition: transform 0.2s; }
+.btn-accent:hover:not(:disabled) .arrow-icon { transform: translateX(4px); }
+
+/* ── Q CARDS (S3) ── */
+.q-card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 28px; margin-bottom: 2px;
+  transition: border-color 0.2s;
+}
+.q-card.active { border-color: rgba(200,241,53,0.3); }
+.q-card.locked { opacity: 0.45; pointer-events: none; }
+.q-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.q-text { font-family: var(--serif); font-size: 20px; font-weight: 400; margin-bottom: 20px; line-height: 1.3; }
+.q-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--sans); font-size: 15px;
+  padding: 12px 16px; outline: none; transition: border-color 0.2s;
+}
+.q-input:focus { border-color: var(--accent); }
+.q-input::placeholder { color: #4a4a44; }
+.q-next {
+  margin-top: 14px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--bg); background: var(--accent);
+  border: none; padding: 8px 18px; cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.q-next:disabled { opacity: 0.3; cursor: not-allowed; }
+.q-next:hover:not(:disabled) { background: #d4ff55; }
+.q-done-mark {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+/* ── HYPOTHESIS OUTPUT (S4) ── */
+.hyp-card {
+  background: var(--surface); border: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+.hyp-card-header {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.hyp-card-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+.hyp-field-row { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; gap: 20px; align-items: flex-start; }
+.hyp-field-row:last-child { border-bottom: none; }
+.hyp-key { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; min-width: 80px; padding-top: 10px; }
+.hyp-editable {
+  flex: 1; background: var(--bg); border: 1px solid transparent;
+  color: var(--text); font-family: var(--sans); font-size: 15px;
+  padding: 10px 14px; line-height: 1.6; outline: none;
+  transition: border-color 0.2s; resize: none; min-height: 48px;
+}
+.hyp-editable:focus { border-color: rgba(200,241,53,0.4); }
+
+.criteria-block { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 2px; }
+.criteria-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+.criteria-list { list-style: none; }
+.criteria-list li {
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--text); display: flex; gap: 10px; align-items: flex-start;
+}
+.criteria-list li:last-child { border-bottom: none; }
+.criteria-list li::before { content: '—'; color: var(--accent); flex-shrink: 0; font-family: var(--mono); }
+
+.method-block { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 2px; display: flex; gap: 20px; align-items: flex-start; }
+.method-badge {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: rgba(200,241,53,0.1); color: var(--accent); border: 1px solid rgba(200,241,53,0.25);
+  padding: 6px 14px; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+}
+.method-info {}
+.method-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+.method-explain { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+.micro-copy { font-size: 12px; color: var(--muted); margin-bottom: 24px; font-family: var(--mono); letter-spacing: 0.04em; }
+
+/* ── LOG (S5) ── */
+.log-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 16px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(14,14,14,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.log-wrap { max-width: 800px; margin: 0 auto; padding: 88px 24px 60px; }
+.log-title { font-family: var(--serif); font-size: clamp(26px, 3vw, 38px); font-weight: 400; margin-bottom: 8px; }
+.log-count { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 36px; }
+.hyp-log-card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 24px 28px; margin-bottom: 2px; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center;
+}
+.hyp-log-card:hover { background: var(--surface2); border-color: rgba(200,241,53,0.2); }
+.log-card-if { font-family: var(--serif); font-size: 17px; margin-bottom: 8px; line-height: 1.3; }
+.log-card-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.log-badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border: 1px solid; }
+.badge-ab { color: var(--accent); border-color: rgba(200,241,53,0.3); background: rgba(200,241,53,0.06); }
+.badge-interview { color: #79d9c8; border-color: rgba(121,217,200,0.3); background: rgba(121,217,200,0.06); }
+.badge-smoke { color: #c4a0f5; border-color: rgba(196,160,245,0.3); background: rgba(196,160,245,0.06); }
+.log-date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.status-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border: 1px solid var(--border); color: var(--muted); }
+.status-tag.in-progress { color: #f5c842; border-color: rgba(245,200,66,0.3); background: rgba(245,200,66,0.06); }
+.status-tag.done { color: var(--accent); border-color: rgba(200,241,53,0.3); background: rgba(200,241,53,0.06); }
+.log-view-link { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; white-space: nowrap; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 80px 40px; }
+.empty-icon { width: 64px; height: 64px; border: 1px dashed var(--border); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; }
+.empty-title { font-family: var(--serif); font-size: 22px; margin-bottom: 10px; }
+.empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+/* ── S5a DETAIL ── */
+.detail-wrap { max-width: 680px; margin: 0 auto; padding: 100px 24px 60px; }
+.detail-section { margin-bottom: 2px; }
+.detail-block { background: var(--surface); border: 1px solid var(--border); padding: 24px 28px; }
+.detail-block-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.detail-hyp-row { display: flex; gap: 16px; margin-bottom: 12px; }
+.detail-hyp-row:last-child { margin-bottom: 0; }
+.detail-key { font-family: var(--mono); font-size: 11px; color: var(--accent); min-width: 80px; padding-top: 2px; letter-spacing: 0.08em; }
+.detail-val { font-size: 15px; color: var(--text); line-height: 1.6; }
+
+.status-sel-wrap { margin-bottom: 2px; background: var(--surface); border: 1px solid var(--border); padding: 20px 28px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.status-sel-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.status-btn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 16px; border: 1px solid var(--border); background: transparent; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.status-btn.selected { color: var(--accent); border-color: rgba(200,241,53,0.4); background: rgba(200,241,53,0.07); }
+.notes-block { background: var(--surface); border: 1px solid var(--border); padding: 24px 28px; margin-bottom: 2px; }
+.notes-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.notes-area {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--sans); font-size: 14px; padding: 14px 16px;
+  min-height: 100px; resize: vertical; outline: none; line-height: 1.65;
+  transition: border-color 0.2s;
+}
+.notes-area:focus { border-color: rgba(200,241,53,0.4); }
+.notes-area::placeholder { color: #4a4a44; }
+.detail-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--surface); border: 1px solid var(--border); padding: 40px; max-width: 420px; width: 90%; }
+.modal-title { font-family: var(--serif); font-size: 24px; margin-bottom: 12px; }
+.modal-body { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+.modal-actions { display: flex; gap: 12px; }
+
+/* ── LANDING PAGE STYLES ── */
+.hero {
+  min-height: 100vh; display: grid; grid-template-rows: 1fr auto;
+  padding: 120px 40px 80px; position: relative; overflow: hidden;
+}
+.hero-grid-bg {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(200,241,53,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(200,241,53,0.04) 1px, transparent 1px);
+  background-size: 60px 60px; pointer-events: none;
+}
+.hero-glow {
+  position: absolute; width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,241,53,0.08) 0%, transparent 70%);
+  top: 10%; left: -100px; pointer-events: none;
+  animation: pulse 6s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
+.hero-inner {
+  max-width: 1100px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 420px; gap: 80px;
+  align-items: center; position: relative;
+}
+.hero-tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; color: var(--accent);
+  text-transform: uppercase; margin-bottom: 28px; display: flex; align-items: center; gap: 10px;
+}
+.hero-tag::before { content:''; display:block; width:24px; height:1px; background:var(--accent); }
+h1 { font-family: var(--serif); font-size: clamp(42px,5.5vw,72px); line-height:1.1; font-weight:400; letter-spacing:-0.01em; margin-bottom:28px; }
+h1 em { font-style:italic; color:var(--accent); }
+.hero-subtitle { font-size:17px; color:#a09d96; line-height:1.7; max-width:520px; margin-bottom:44px; font-weight:300; }
+.hero-actions { display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.btn-primary {
+  display:inline-flex; align-items:center; gap:10px; background:var(--accent); color:var(--bg);
+  font-family:var(--mono); font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
+  padding:16px 32px; border:none; cursor:pointer; transition:background 0.2s,transform 0.15s,box-shadow 0.2s;
+}
+.btn-primary:hover { background:#d4ff55; transform:translateY(-2px); box-shadow:0 8px 32px rgba(200,241,53,0.25); }
+.btn-primary .arr { display:inline-block; transition:transform 0.2s; }
+.btn-primary:hover .arr { transform:translateX(4px); }
+.hero-microcopy { font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.05em; }
+.proof-card {
+  background:var(--surface); border:1px solid var(--border); padding:32px;
+  position:relative; animation:float 5s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.proof-card::before { content:''; position:absolute; top:-1px; left:24px; width:40px; height:2px; background:var(--accent); }
+.proof-label { font-family:var(--mono); font-size:10px; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:20px; }
+.proof-quote { font-family:var(--serif); font-size:20px; line-height:1.5; font-style:italic; margin-bottom:20px; }
+.proof-author { font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.05em; }
+.proof-stat-row { display:grid; grid-template-columns:1fr 1fr; margin-top:28px; border-top:1px solid var(--border); padding-top:24px; }
+.proof-stat-num { font-family:var(--mono); font-size:28px; color:var(--accent); letter-spacing:-0.02em; line-height:1; margin-bottom:4px; }
+.proof-stat-label { font-size:11px; color:var(--muted); line-height:1.4; }
+.hyp-preview { background:var(--bg); border:1px solid var(--border); padding:24px; font-family:var(--mono); font-size:12px; margin-top:24px; }
+.hyp-preview-label { font-size:10px; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:14px; }
+.hyp-line { display:flex; gap:10px; margin-bottom:8px; line-height:1.5; }
+.hyp-k { color:var(--accent); min-width:64px; flex-shrink:0; }
+.hyp-v { color:#c8c4bc; }
+.hyp-divider { height:1px; background:var(--border); margin:14px 0; }
+.hyp-method { display:flex; align-items:center; gap:10px; font-size:11px; color:var(--muted); }
+.hm-badge { background:rgba(200,241,53,0.1); color:var(--accent); border:1px solid rgba(200,241,53,0.25); padding:3px 10px; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; }
+
+.audience-ribbon { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:18px 0; overflow:hidden; }
+.ribbon-inner { display:flex; width:max-content; animation:scroll 30s linear infinite; }
+@keyframes scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ribbon-item { font-family:var(--mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); padding:0 32px; white-space:nowrap; display:flex; align-items:center; gap:32px; }
+.ribbon-dot { width:3px; height:3px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+
+section.lp { padding:120px 40px; max-width:1100px; margin:0 auto; }
+.section-label { font-family:var(--mono); font-size:11px; letter-spacing:0.15em; color:var(--accent); text-transform:uppercase; margin-bottom:20px; display:flex; align-items:center; gap:12px; }
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); max-width:80px; }
+.section-h2 { font-family:var(--serif); font-size:clamp(32px,3.5vw,52px); font-weight:400; line-height:1.15; margin-bottom:16px; }
+.section-sub { font-size:16px; color:var(--muted); font-weight:300; max-width:480px; margin-bottom:64px; }
+
+.steps-wrapper { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--border); }
+.step { background:var(--surface); padding:40px 36px; position:relative; transition:background 0.3s; }
+.step:hover { background:var(--surface2); }
+.step-num { font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--muted); margin-bottom:20px; text-transform:uppercase; }
+.step-icon { font-size:28px; margin-bottom:16px; display:block; }
+.step-title { font-family:var(--serif); font-size:21px; font-weight:400; margin-bottom:12px; line-height:1.3; }
+.step-body { font-size:14px; color:#8a8880; line-height:1.7; font-weight:300; }
+
+.benefits-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--border); }
+.benefit { background:var(--surface); padding:40px; position:relative; overflow:hidden; transition:background 0.3s; }
+.benefit:hover { background:var(--surface2); }
+.benefit::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:transparent; transition:background 0.3s; }
+.benefit:hover::before { background:var(--accent); }
+.benefit-icon { width:40px; height:40px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:24px; }
+.benefit-title { font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.benefit-h3 { font-family:var(--serif); font-size:21px; font-weight:400; margin-bottom:10px; line-height:1.3; }
+.benefit-body { font-size:14px; color:#8a8880; line-height:1.7; font-weight:300; }
+
+.cta-section { background:var(--surface); border-top:1px solid var(--border); }
+.cta-inner { max-width:1100px; margin:0 auto; padding:120px 40px; display:grid; grid-template-columns:1fr auto; gap:80px; align-items:center; }
+.cta-h2 { font-family:var(--serif); font-size:clamp(36px,4vw,58px); font-weight:400; line-height:1.15; margin-bottom:18px; }
+.cta-body { font-size:16px; color:var(--muted); max-width:500px; line-height:1.7; font-weight:300; }
+.cta-right { display:flex; flex-direction:column; align-items:flex-end; gap:14px; min-width:240px; }
+.btn-large { display:inline-flex; align-items:center; gap:12px; background:var(--accent); color:var(--bg); font-family:var(--mono); font-size:13px; letter-spacing:0.08em; text-transform:uppercase; padding:20px 36px; border:none; cursor:pointer; transition:background 0.2s,transform 0.15s,box-shadow 0.2s; white-space:nowrap; }
+.btn-large:hover { background:#d4ff55; transform:translateY(-2px); box-shadow:0 12px 40px rgba(200,241,53,0.3); }
+.cta-micro { font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.05em; text-align:right; }
+
+.lp-footer { padding:28px 40px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.footer-logo { font-family:var(--mono); font-size:12px; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase; }
+.footer-copy { font-family:var(--mono); font-size:11px; color:#444; letter-spacing:0.05em; }
+
+/* ── TRANSITIONS ── */
+.fade-in { opacity:0; transform:translateY(20px); transition:opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity:1; transform:translateY(0); }
+.fd1{transition-delay:0.1s} .fd2{transition-delay:0.2s} .fd3{transition-delay:0.3s} .fd4{transition-delay:0.4s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:14px 20px}
+  .hero{padding:100px 20px 60px}
+  .hero-inner{grid-template-columns:1fr;gap:44px}
+  .proof-card{animation:none}
+  .steps-wrapper{grid-template-columns:1fr}
+  .benefits-grid{grid-template-columns:1fr}
+  .cta-inner{grid-template-columns:1fr;gap:36px}
+  .cta-right{align-items:flex-start}
+  .cta-micro{text-align:left}
+  section.lp{padding:80px 20px}
+  .lp-footer{padding:20px;flex-direction:column;gap:10px;text-align:center}
+  .funnel-nav{padding:14px 20px}
+  .funnel-wrap{padding:88px 20px 60px}
+  .log-header{padding:14px 20px}
+  .log-wrap{padding:80px 20px 60px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     S1: LANDING PAGE
+══════════════════════════════════ -->
+<div id="s1" class="screen active">
+  <nav>
+    <div class="logo" onclick="goTo('s1')">HypothesisLab</div>
+    <button class="nav-cta" onclick="goTo('s2')">Try it free</button>
+  </nav>
+
+  <section class="hero" style="max-width:100%;padding-top:120px;padding-bottom:80px;">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag fade-in">For product & growth teams</div>
+        <h1 class="fade-in fd1">Turn a raw idea into a hypothesis you can <em>actually test</em></h1>
+        <p class="hero-subtitle fade-in fd2">Stop the "wait, what are we even testing?" debates. HypothesisLab structures your idea into a clear, testable hypothesis — with validation criteria and a recommended method. In 2 minutes.</p>
+        <div class="hero-actions fade-in fd3">
+          <button class="btn-primary" onclick="goTo('s2')">Try it free <span class="arr">→</span></button>
+          <span class="hero-microcopy">No sign-up &nbsp;·&nbsp; Free &nbsp;·&nbsp; Straight to the point</span>
+        </div>
+      </div>
+      <div class="fade-in fd4">
+        <div class="proof-card">
+          <div class="proof-label">User story</div>
+          <p class="proof-quote">"For the first time, our tests actually answered the question we were asking."</p>
+          <div class="proof-author">— Product Manager, B2B SaaS</div>
+          <div class="hyp-preview">
+            <div class="hyp-preview-label">Sample output</div>
+            <div class="hyp-line"><span class="hyp-k">IF</span><span class="hyp-v">we add inline tooltips to the pricing page</span></div>
+            <div class="hyp-line"><span class="hyp-k">THEN</span><span class="hyp-v">trial signups increase by ≥12%</span></div>
+            <div class="hyp-line"><span class="hyp-k">BECAUSE</span><span class="hyp-v">users lack clarity on plan differences</span></div>
+            <div class="hyp-divider"></div>
+            <div class="hyp-method">Recommended: <span class="hm-badge">A/B Test</span></div>
+          </div>
+          <div class="proof-stat-row">
+            <div class="proof-stat">
+              <div class="proof-stat-num">2min</div>
+              <div class="proof-stat-label">avg. time to structured hypothesis</div>
+            </div>
+            <div class="proof-stat" style="padding-left:16px;">
+              <div class="proof-stat-num">70%+</div>
+              <div class="proof-stat-label">hypotheses valid on first attempt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="audience-ribbon">
+    <div class="ribbon-inner">
+      <div class="ribbon-item">Product Managers <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Growth Managers <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Product Analysts <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Startup Founders <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">A/B Test Teams <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">CRO Specialists <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Experimentation Teams <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Product Managers <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Growth Managers <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Product Analysts <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Startup Founders <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">A/B Test Teams <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">CRO Specialists <span class="ribbon-dot"></span></div>
+      <div class="ribbon-item">Experimentation Teams <span class="ribbon-dot"></span></div>
+    </div>
+  </div>
+
+  <section class="lp">
+    <div class="section-label">Process</div>
+    <h2 class="section-h2">How it works</h2>
+    <p class="section-sub">Three steps. No learning curve. No template wrangling.</p>
+    <div class="steps-wrapper">
+      <div class="step">
+        <div class="step-num">Step 01</div>
+        <span class="step-icon">🧠</span>
+        <div class="step-title">Describe your idea</div>
+        <p class="step-body">Write anything — an observation, a hunch, a user complaint. No structure needed. Just the thought as it is in your head.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Step 02</div>
+        <span class="step-icon">🎯</span>
+        <div class="step-title">Answer 2–3 focused questions</div>
+        <p class="step-body">The service asks only what matters: who's affected, what behavior you expect, and what change you're looking for.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Step 03</div>
+        <span class="step-icon">✅</span>
+        <div class="step-title">Get your hypothesis</div>
+        <p class="step-body">Receive a structured "If → Then → Because" statement, clear success criteria, and a validation method matched to your product stage.</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="max-width:100%;padding:0;">
+    <div style="max-width:1100px;margin:0 auto;padding:0 40px 64px;">
+      <div class="section-label">Deliverables</div>
+      <h2 class="section-h2">What you get</h2>
+      <p class="section-sub">After one session with HypothesisLab.</p>
+      <div class="benefits-grid">
+        <div class="benefit">
+          <div class="benefit-icon">◻</div>
+          <div class="benefit-title">01 / Clean Hypothesis</div>
+          <h3 class="benefit-h3">A clean hypothesis in a standard format</h3>
+          <p class="benefit-body">No vague "maybe" or "it seems like." Your hypothesis lands in a precise If → Then → Because structure everyone on the team reads the same way.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">◎</div>
+          <div class="benefit-title">02 / Success Criteria</div>
+          <h3 class="benefit-h3">Concrete definition of "confirmed"</h3>
+          <p class="benefit-body">Know before you start what a win looks like. Clear, measurable criteria mean no post-hoc debates about whether the experiment worked.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">▷</div>
+          <div class="benefit-title">03 / Validation Method</div>
+          <h3 class="benefit-h3">The right method for your stage</h3>
+          <p class="benefit-body">Interview, A/B test, or smoke test — recommended based on where you are in the product cycle.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">≡</div>
+          <div class="benefit-title">04 / Hypothesis Log</div>
+          <h3 class="benefit-h3">Team memory of what you've tested</h3>
+          <p class="benefit-body">A running log tied to outcomes — so you never duplicate a failed experiment, and institutional knowledge stays in the product.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <div class="cta-inner">
+      <div>
+        <h2 class="cta-h2">Your next hypothesis is waiting to be written <em style="font-style:italic;color:var(--accent);">properly</em></h2>
+        <p class="cta-body">Don't launch another test on a gut feeling. Spend 2 minutes now — and get a result that actually answers your question.</p>
+      </div>
+      <div class="cta-right">
+        <button class="btn-large" onclick="goTo('s2')">Write my first hypothesis <span class="arr">→</span></button>
+        <div class="cta-micro">Free &nbsp;·&nbsp; No sign-up &nbsp;·&nbsp; Straight to the point</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="lp-footer">
+    <div class="footer-logo">HypothesisLab</div>
+    <div class="footer-copy">© 2025 HypothesisLab. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════
+     S2: IDEA INPUT
+══════════════════════════════════ -->
+<div id="s2" class="screen">
+  <div class="funnel-nav">
+    <div class="funnel-logo" onclick="goTo('s1')">HypothesisLab</div>
+    <div class="prog-steps">
+      <div class="prog-step active"><div class="prog-dot"></div>Idea</div>
+      <div class="prog-line"></div>
+      <div class="prog-step"><div class="prog-dot"></div>Questions</div>
+      <div class="prog-line"></div>
+      <div class="prog-step"><div class="prog-dot"></div>Hypothesis</div>
+    </div>
+    <button class="back-btn" onclick="goTo('s1')">← Back</button>
+  </div>
+  <div class="funnel-wrap">
+    <div class="screen-eyebrow">Step 1 of 3</div>
+    <h2 class="screen-title">What's your idea or observation?</h2>
+    <p class="screen-sub">Write anything — a hunch, a complaint, a pattern you noticed. No structure needed.</p>
+    <textarea
+      class="idea-area"
+      id="idea-input"
+      placeholder="E.g. Users drop off after the pricing page…"
+      oninput="checkIdeaLength()"
+      rows="7"></textarea>
+    <div class="field-footer">
+      <span class="helper-text" style="margin:0;">No hypothesis format required. Just describe what you noticed.</span>
+      <span class="char-counter" id="char-counter">0 / 20 min</span>
+    </div>
+    <div style="margin-top:28px;">
+      <button class="btn-accent" id="idea-continue-btn" disabled onclick="goTo('s3')">
+        Continue <span class="arrow-icon">→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     S3: CLARIFYING QUESTIONS
+══════════════════════════════════ -->
+<div id="s3" class="screen">
+  <div class="funnel-nav">
+    <div class="funnel-logo" onclick="goTo('s1')">HypothesisLab</div>
+    <div class="prog-steps">
+      <div class="prog-step done"><div class="prog-dot"></div>Idea</div>
+      <div class="prog-line"></div>
+      <div class="prog-step active"><div class="prog-dot"></div>Questions</div>
+      <div class="prog-line"></div>
+      <div class="prog-step"><div class="prog-dot"></div>Hypothesis</div>
+    </div>
+    <button class="back-btn" onclick="goTo('s2')">← Back</button>
+  </div>
+  <div class="funnel-wrap">
+    <div class="screen-eyebrow">Step 2 of 3</div>
+    <h2 class="screen-title">A few quick questions</h2>
+    <p class="screen-sub">This helps structure your idea. Answer briefly.</p>
+
+    <!-- Q1 -->
+    <div class="q-card active" id="q1-card">
+      <div class="q-label">Question 01</div>
+      <div class="q-text">Who is affected by this?</div>
+      <input class="q-input" id="q1-input" type="text" placeholder="E.g. New users, trial customers, mobile users…" oninput="checkQ(1)">
+      <div style="margin-top:14px;">
+        <button class="q-next" id="q1-next" disabled onclick="unlockQ(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-card locked" id="q2-card">
+      <div class="q-label">Question 02</div>
+      <div class="q-text">What behavior or action do you expect to change?</div>
+      <input class="q-input" id="q2-input" type="text" placeholder="E.g. They will complete signup, click the CTA, return within 7 days…" oninput="checkQ(2)">
+      <div style="margin-top:14px;">
+        <button class="q-next" id="q2-next" disabled onclick="unlockQ(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-card locked" id="q3-card">
+      <div class="q-label">Question 03</div>
+      <div class="q-text">How will you know if it worked? What would you measure?</div>
+      <input class="q-input" id="q3-input" type="text" placeholder="E.g. Conversion rate increases by ≥10%, weekly active users…" oninput="checkQ(3)">
+      <div style="margin-top:14px;">
+        <button class="q-next" id="q3-next" disabled onclick="markQ3Done()">Done ✓</button>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <button class="btn-accent" id="gen-btn" disabled onclick="buildAndGoS4()">
+        Generate hypothesis <span class="arrow-icon">→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     S4: HYPOTHESIS OUTPUT
+══════════════════════════════════ -->
+<div id="s4" class="screen">
+  <div class="funnel-nav">
+    <div class="funnel-logo" onclick="goTo('s1')">HypothesisLab</div>
+    <div class="prog-steps">
+      <div class="prog-step done"><div class="prog-dot"></div>Idea</div>
+      <div class="prog-line"></div>
+      <div class="prog-step done"><div class="prog-dot"></div>Questions</div>
+      <div class="prog-line"></div>
+      <div class="prog-step active"><div class="prog-dot"></div>Hypothesis</div>
+    </div>
+    <button class="back-btn" onclick="goTo('s3')">← Revise</button>
+  </div>
+  <div class="funnel-wrap">
+    <div class="screen-eyebrow">Step 3 of 3</div>
+    <h2 class="screen-title">Your structured hypothesis</h2>
+    <p class="screen-sub">All fields are editable before saving.</p>
+
+    <div class="hyp-card" style="margin-bottom:2px;">
+      <div class="hyp-card-header">
+        <div class="hyp-card-label">Hypothesis structure</div>
+      </div>
+      <div class="hyp-field-row">
+        <div class="hyp-key">IF</div>
+        <textarea class="hyp-editable" id="s4-if" rows="2"></textarea>
+      </div>
+      <div class="hyp-field-row">
+        <div class="hyp-key">THEN</div>
+        <textarea class="hyp-editable" id="s4-then" rows="2"></textarea>
+      </div>
+      <div class="hyp-field-row" style="border-bottom:none;">
+        <div class="hyp-key">BECAUSE</div>
+        <textarea class="hyp-editable" id="s4-because" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="criteria-block">
+      <div class="criteria-label">You'll know it's confirmed when…</div>
+      <ul class="criteria-list" id="s4-criteria"></ul>
+    </div>
+
+    <div class="method-block">
+      <div>
+        <div class="method-label">Recommended method</div>
+        <div id="s4-badge" class="method-badge badge-ab" style="display:inline-block;margin-bottom:10px;">A/B Test</div>
+        <div class="method-explain" id="s4-method-explain"></div>
+      </div>
+    </div>
+
+    <div class="micro-copy" style="margin-top:16px;">You can edit any field above before saving.</div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goTo('s3')">← Revise</button>
+      <button class="btn-accent" onclick="saveHypothesis()">Save to log <span class="arrow-icon">→</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     S5: HYPOTHESIS LOG
+══════════════════════════════════ -->
+<div id="s5" class="screen">
+  <div class="log-header">
+    <div class="funnel-logo" onclick="goTo('s1')">HypothesisLab</div>
+    <button class="btn-accent" onclick="goTo('s2')" style="padding:10px 22px;font-size:12px;">+ New hypothesis</button>
+  </div>
+  <div class="log-wrap">
+    <div class="log-title">Your hypothesis log</div>
+    <div class="log-count" id="log-count"></div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     S5a: HYPOTHESIS DETAIL
+══════════════════════════════════ -->
+<div id="s5a" class="screen">
+  <div class="funnel-nav">
+    <div class="funnel-logo" onclick="goTo('s1')">HypothesisLab</div>
+    <div style="display:flex;gap:12px;">
+      <button class="back-btn" onclick="goTo('s5')">← Log</button>
+    </div>
+  </div>
+  <div class="detail-wrap">
+    <div class="screen-eyebrow">Hypothesis detail</div>
+    <h2 class="screen-title" id="d-title" style="margin-bottom:28px;"></h2>
+
+    <div class="detail-block" style="margin-bottom:2px;">
+      <div class="detail-block-label">Hypothesis structure</div>
+      <div class="detail-hyp-row"><div class="detail-key">IF</div><div class="detail-val" id="d-if"></div></div>
+      <div class="detail-hyp-row"><div class="detail-key">THEN</div><div class="detail-val" id="d-then"></div></div>
+      <div class="detail-hyp-row"><div class="detail-key">BECAUSE</div><div class="detail-val" id="d-because"></div></div>
+    </div>
+
+    <div class="criteria-block" style="margin-bottom:2px;">
+      <div class="criteria-label">Success criteria</div>
+      <ul class="criteria-list" id="d-criteria"></ul>
+    </div>
+
+    <div class="method-block" style="margin-bottom:16px;">
+      <div>
+        <div class="method-label">Recommended method</div>
+        <div id="d-badge" class="method-badge badge-ab" style="display:inline-block;margin-bottom:8px;"></div>
+        <div class="method-explain" id="d-method-explain"></div>
+      </div>
+    </div>
+
+    <div class="status-sel-wrap">
+      <div class="status-sel-label">Status</div>
+      <button class="status-btn" data-status="Not started" onclick="setStatus(this)">Not started</button>
+      <button class="status-btn" data-status="In progress" onclick="setStatus(this)">In progress</button>
+      <button class="status-btn" data-status="Done" onclick="setStatus(this)">Done</button>
+    </div>
+
+    <div class="notes-block">
+      <div class="notes-label">Notes</div>
+      <textarea class="notes-area" id="d-notes" placeholder="Add context, observations, or outcomes…" oninput="saveNotes()"></textarea>
+    </div>
+
+    <div class="detail-actions">
+      <button class="btn-accent" onclick="goTo('s2')">Start a new hypothesis <span class="arrow-icon">→</span></button>
+      <button class="btn-danger" onclick="openDeleteModal()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DELETE MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box">
+    <div class="modal-title">Delete this hypothesis?</div>
+    <p class="modal-body">This action cannot be undone. The hypothesis and all its notes will be permanently removed from your log.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()" style="padding:14px 24px;font-size:13px;">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let hypotheses = [
+  {
+    id: 1,
+    if: "we add inline tooltips to the pricing page explaining each plan's key difference",
+    then: "trial-to-paid conversion increases by at least 12%",
+    because: "users currently lack clarity on plan differences and drop off before deciding",
+    criteria: ["Conversion rate from trial to paid ≥ 12% lift within 2 weeks","No statistically significant change in free trial sign-up rate"],
+    method: "A/B Test",
+    methodExplain: "You have enough traffic to run a controlled experiment. A/B test lets you isolate the tooltip change as the single variable.",
+    date: "Mar 10, 2025",
+    status: "In progress",
+    notes: ""
+  },
+  {
+    id: 2,
+    if: "we send a re-engagement email 48h after sign-up to users who haven't completed onboarding",
+    then: "onboarding completion rate increases by at least 20%",
+    because: "most drop-offs happen silently within the first 72h with no re-engagement trigger",
+    criteria: ["Onboarding completion rate lift ≥ 20% vs. control group","Unsubscribe rate does not increase by more than 2%"],
+    method: "User Interview",
+    methodExplain: "Before building the email flow, validate that users actually want re-engagement — a quick 5-user interview will confirm or kill the idea cheaply.",
+    date: "Mar 12, 2025",
+    status: "Not started",
+    notes: ""
+  }
+];
+let currentHypId = null;
+let nextId = 3;
+
+// ── Router ──
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0,0);
+  if (screenId === 's5') renderLog();
+  if (screenId === 's2') resetS2();
+  if (screenId === 's3') resetS3();
+}
+
+// ── S2 ──
+function resetS2() {
+  document.getElementById('idea-input').value = '';
+  document.getElementById('char-counter').textContent = '0 / 20 min';
+  document.getElementById('char-counter').classList.remove('ready');
+  document.getElementById('idea-continue-btn').disabled = true;
+}
+function checkIdeaLength() {
+  const val = document.getElementById('idea-input').value;
+  const len = val.trim().length;
+  const counter = document.getElementById('char-counter');
+  counter.textContent = len < 20 ? `${len} / 20 min` : `${len} chars ✓`;
+  counter.classList.toggle('ready', len >= 20);
+  document.getElementById('idea-continue-btn').disabled = len < 20;
+}
+
+// ── S3 ──
+function resetS3() {
+  ['q1','q2','q3'].forEach(q => {
+    document.getElementById(q+'-input').value = '';
+    document.getElementById(q+'-next').disabled = true;
+  });
+  document.getElementById('q1-card').className = 'q-card active';
+  document.getElementById('q2-card').className = 'q-card locked';
+  document.getElementById('q3-card').className = 'q-card locked';
+  document.getElementById('gen-btn').disabled = true;
+}
+function checkQ(n) {
+  const val = document.getElementById('q'+n+'-input').value.trim();
+  document.getElementById('q'+n+'-next').disabled = val.length < 3;
+}
+function unlockQ(n) {
+  const prev = n-1;
+  const card = document.getElementById('q'+prev+'-card');
+  card.className = 'q-card';
+  const doneEl = document.createElement('div');
+  doneEl.className = 'q-done-mark';
+  doneEl.textContent = '✓ Answered';
+  const nextBtn = document.getElementById('q'+prev+'-next');
+  nextBtn.style.display = 'none';
+  if (!card.querySelector('.q-done-mark')) card.appendChild(doneEl);
+  document.getElementById('q'+n+'-card').className = 'q-card active';
+  document.getElementById('q'+n+'-input').focus();
+}
+function markQ3Done() {
+  const card = document.getElementById('q3-card');
+  card.className = 'q-card';
+  const nextBtn = document.getElementById('q3-next');
+  nextBtn.style.display = 'none';
+  if (!card.querySelector('.q-done-mark')) {
+    const d = document.createElement('div');
+    d.className = 'q-done-mark';
+    d.textContent = '✓ Answered';
+    card.appendChild(d);
+  }
+  document.getElementById('gen-btn').disabled = false;
+}
+
+// ── S4 Build ──
+function buildAndGoS4() {
+  const idea = document.getElementById('idea-input').value.trim();
+  const q1 = document.getElementById('q1-input').value.trim();
+  const q2 = document.getElementById('q2-input').value.trim();
+  const q3 = document.getElementById('q3-input').value.trim();
+
+  document.getElementById('s4-if').value = `we implement a change targeting ${q1}`;
+  document.getElementById('s4-then').value = `${q2} by a measurable amount`;
+  document.getElementById('s4-because').value = idea.length > 80 ? idea.substring(0,80)+'…' : idea;
+
+  const crit = document.getElementById('s4-criteria');
+  crit.innerHTML = `
+    <li>${q3}</li>
+    <li>No significant negative impact on adjacent key metrics</li>
+  `;
+
+  const wordCount = idea.split(' ').length + q1.split(' ').length;
+  let method, explain, badgeClass;
+  if (wordCount < 20) {
+    method = 'User Interview'; badgeClass = 'badge-interview';
+    explain = 'The idea is still exploratory. Run 5 interviews before building anything — they\'ll validate or kill the hypothesis cheaply.';
+  } else if (q3.toLowerCase().includes('rate') || q3.toLowerCase().includes('%')) {
+    method = 'A/B Test'; badgeClass = 'badge-ab';
+    explain = 'You have a quantitative metric and a clear change to test. A/B test isolates causality and gives statistical confidence.';
+  } else {
+    method = 'Smoke Test'; badgeClass = 'badge-smoke';
+    explain = 'Before full build-out, a smoke test (fake door / landing page) can validate demand quickly with minimal engineering effort.';
+  }
+
+  document.getElementById('s4-badge').textContent = method;
+  document.getElementById('s4-badge').className = 'method-badge ' + badgeClass;
+  document.getElementById('s4-method-explain').textContent = explain;
+
+  // Store draft
+  window._draft = { if: document.getElementById('s4-if').value, then: document.getElementById('s4-then').value, because: document.getElementById('s4-because').value, method, explain, badgeClass };
+
+  goTo('s4');
+}
+
+function saveHypothesis() {
+  const idea = document.getElementById('idea-input').value.trim();
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const d = window._draft || {};
+  const h = {
+    id: nextId++,
+    if: document.getElementById('s4-if').value,
+    then: document.getElementById('s4-then').value,
+    because: document.getElementById('s4-because').value,
+    criteria: Array.from(document.getElementById('s4-criteria').querySelectorAll('li')).map(li=>li.textContent),
+    method: d.method || 'A/B Test',
+    methodExplain: d.explain || '',
+    date: today,
+    status: 'Not started',
+    notes: ''
+  };
+  hypotheses.unshift(h);
+  goTo('s5');
+}
+
+// ── S5 Log ──
+function renderLog() {
+  const list = document.getElementById('log-list');
+  const count = document.getElementById('log-count');
+  count.textContent = hypotheses.length + ' saved ' + (hypotheses.length === 1 ? 'hypothesis' : 'hypotheses');
+
+  if (hypotheses.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><span style="font-size:20px;color:var(--muted);">◻</span></div>
+        <div class="empty-title">No hypotheses yet.</div>
+        <p class="empty-sub">Start with your first one.</p>
+        <button class="btn-accent" onclick="goTo('s2')">Create hypothesis →</button>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = hypotheses.map(h => {
+    const badgeClass = h.method === 'A/B Test' ? 'badge-ab' : h.method === 'User Interview' ? 'badge-interview' : 'badge-smoke';
+    const statusClass = h.status === 'Done' ? 'done' : h.status === 'In progress' ? 'in-progress' : '';
+    const truncIf = h.if.length > 70 ? h.if.substring(0,70)+'…' : h.if;
+    return `
+      <div class="hyp-log-card" onclick="openDetail(${h.id})">
+        <div>
+          <div class="log-card-if">IF ${truncIf}</div>
+          <div class="log-card-meta">
+            <span class="log-badge ${badgeClass}">${h.method}</span>
+            <span class="log-date">${h.date}</span>
+            <span class="status-tag ${statusClass}">${h.status}</span>
+          </div>
+        </div>
+        <div class="log-view-link">View →</div>
+      </div>`;
+  }).join('');
+}
+
+// ── S5a Detail ──
+function openDetail(id) {
+  const h = hypotheses.find(x => x.id === id);
+  if (!h) return;
+  currentHypId = id;
+  document.getElementById('d-title').textContent = 'IF ' + (h.if.length > 60 ? h.if.substring(0,60)+'…' : h.if);
+  document.getElementById('d-if').textContent = h.if;
+  document.getElementById('d-then').textContent = h.then;
+  document.getElementById('d-because').textContent = h.because;
+
+  const crit = document.getElementById('d-criteria');
+  crit.innerHTML = h.criteria.map(c => `<li>${c}</li>`).join('');
+
+  const badgeClass = h.method === 'A/B Test' ? 'badge-ab' : h.method === 'User Interview' ? 'badge-interview' : 'badge-smoke';
+  document.getElementById('d-badge').textContent = h.method;
+  document.getElementById('d-badge').className = 'method-badge ' + badgeClass;
+  document.getElementById('d-method-explain').textContent = h.methodExplain;
+  document.getElementById('d-notes').value = h.notes || '';
+
+  document.querySelectorAll('.status-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.status === h.status);
+  });
+
+  goTo('s5a');
+}
+
+function setStatus(btn) {
+  const h = hypotheses.find(x => x.id === currentHypId);
+  if (!h) return;
+  h.status = btn.dataset.status;
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.toggle('selected', b === btn));
+}
+
+function saveNotes() {
+  const h = hypotheses.find(x => x.id === currentHypId);
+  if (h) h.notes = document.getElementById('d-notes').value;
+}
+
+// ── Delete Modal ──
+function openDeleteModal() { document.getElementById('delete-modal').classList.add('open'); }
+function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); }
+function confirmDelete() {
+  hypotheses = hypotheses.filter(x => x.id !== currentHypId);
+  closeDeleteModal();
+  goTo('s5');
+}
+
+// ── Landing fade-in ──
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+window.addEventListener('load', () => {
+  document.querySelectorAll('.fade-in').forEach(el => {
+    if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
+  });
+});
+</script>
+</body>
+</html>
